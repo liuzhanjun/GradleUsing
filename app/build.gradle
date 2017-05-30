@@ -1,0 +1,162 @@
+//只能应用在Android的模块内,它可以覆盖顶层build.gradle的属性
+apply plugin: 'com.android.application'//Android插件
+
+android {
+//全部的Android配置
+    compileSdkVersion rootProject.ext.x //编译android的API版本 这里使用的是 allprojects配置的变量
+    buildToolsVersion '25.0.0'//编译android的工具和编译器的版本
+    defaultConfig {//配置应用的核心属性
+        //applicationId覆盖mainfest.xml中的包名,但是和包名有一些不同
+//在构建变体的时候applicationId可以作为设备(同时安装多个变体)和支付的唯一标识的包名
+//而mainfest.xml的包名继续用在源代码和R文件内
+        applicationId "jun.zhan.liu.test"
+        //配置最小的运行API级别
+        minSdkVersion 14
+        //用户通知系统,该应用是在某个版本上测试,
+        // 从而操作系统不被启动任何向前兼容的行为,
+        // 和前面的compileSdkVersion没有任何关系
+        targetSdkVersion 24
+        //versionCode,versionName和mainfest中的相同会覆盖mainfest中的
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+//    sourceSets{//设路径置资源/自定义代码结构
+//        main{
+//            java.srcDirs=['']//java目录
+//            resources.srcDirs=['']//
+//            aidl.srcDirs=['']//aidl目录
+//            renderscript.srcDirs['']
+//            manifest.srcFile ''//清单文件目录
+//            res.srcDirs=['']//res目录
+//            assets.srcDirs=['']//资产目录
+//            jniLibs.srcDirs=['']//jni目录
+//        }
+//        androidTest.setRoot('tests')
+//    }
+    signingConfigs {
+        //签名设置
+
+        testStore {
+            keyAlias 'testStore'
+            keyPassword '654321@@m'
+            storeFile file('F:/AndroidStudio/testStore.jks')
+            storePassword '654321@@m'
+        }
+    }
+
+
+
+    buildTypes {//用来编译和打包不同构建类型的应用,用来构建变体
+//        注意:使用此功能需要配置Release版本的签名,如果debug构建和Release构建都需要同一个变量,则两个构建中的buildConfigField中的变量名必须一致
+//        使用构建任务来测试
+//        可以使用gradlew assemble来自动生成所有资源(包括BuildConfig类)
+//        也可以使用gradlew clean 来清除所有生成的资源
+//        可以使用gradlew installDebug来安装debug版本到设备上
+//        可以使用gradlew installRelease来安装Release版本到设备上
+//        可以使用 gradlew uninstallDebug/Release来删掉对应的八本
+//        也可以使用gradlew uninstallAll删掉所有的版本
+
+        release {//构建类型
+            debuggable false//表示这个版本是否可以使用debug调试
+            minifyEnabled false//是否使用progua
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            //从SDK工具版上升到17后,构建工具都会生成一个BuildConfig的类
+//            老版本生成在build下,新版本生成在app/path/..build.../app/generated/source/BuildConfig
+//            该类包含一个按照构建类型设置值的debug常量.如果有一部分代码你只想在debugging时期运行
+//            ,比如说logging,那么DEBUG会非常有用.你可以通过Gradle来扩展该文件,这样在debug和release
+//            时,就可以拥有不同的常量
+//            这些常量可用于切换功能或设置服务器URL,或者de生成bug日志
+            //以下代码就是BuidlConfig属性的方法
+//            resValue("string","name","blue")//res资源引用使用R类
+            buildConfigField("String", "MY_SERVER_URL", "\"http://www.release.com\"")
+            buildConfigField("boolean", "isloggin", "true")
+            signingConfig signingConfigs.testStore//为这个构建变体添加签名
+        }
+        shoufei {
+            debuggable false
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            buildConfigField("String", "MY_SERVER_URL", "\"http://www.收费版本.com\"")
+            buildConfigField("boolean", "isloggin", "true")
+            signingConfig signingConfigs.testStore//只有拥有签名才能在设备上安装该类型的apk
+            applicationIdSuffix '.shoufei'//针对applicationId定义额一个新的后缀
+            versionNameSuffix '-shoufei'//versionName添加后缀
+//            针对applicationId定义了一个新的后缀,使其和release以及debug的applicationId一样
+//            release:com.package
+//            debug:com.package
+//            shoufei:com.package.shoufei
+//            这意味着可以同时安装release和shoufei版本
+
+        }
+        debug {
+            debuggable true
+            minifyEnabled false
+            buildConfigField("String", "MY_SERVER_URL", "\"http://www.debug.com\"")
+            buildConfigField("boolean", "isloggin", "true")
+        }
+
+        //当创建一个新的构建类型的时候,gradle也会创建一个对应的源集,源集目录名和构建类型名相同
+//        该目录不会在创建构建类型的时候自动创建,需要手动创建源集目录(如果用不到就不需要创建了)
+        //创建结构是在app/src下创建跟构建类型名一样的文件目录
+//        注意:
+//        1.在构建类型产生的源集中添加类,需要在在除main源集的其他源集添加这个类
+//        2.当使用不同资源的时候,drawable,和layout将完全覆盖main源集里的同名资源
+//        也就是说,如果不想被覆盖则取名必须不同,
+//        3.value资源和mianfest会覆盖,而是合并,所以main和其他构建不能有同名的value资源,mainfest合并比较复杂
+//        4.构建源集的mainfest不需要从main里面copy mainfest文件,只需要添加需要的标签
+    }
+    productFlavors{//product flavor 和构建类型的不同
+//        构建类型: 同一个应用生成不同的版本
+//        例如,有 debug   release   shoufei    三个构建类型
+//        每个构建类型对应一个版本apk,每个apk功能可能不一样
+        //app-debug.apk
+        //app-release.apk
+        //app-shoufei.apk
+//        product flavor:将构造类型对应的应用版本再分成不同版本
+        //app-red-debug.apk;
+        //app-red-release.apk
+        //app-red-shoufei.apk
+        //app-blue-debug.apk
+        //app-blue-release.apk
+        //app-blue-shoufei.apk
+//        构建变体是构建类型和product flavor结合的结果
+        //product flavor 也有对应的源集
+        red {
+            applicationId 'jun.zhan.liu.test.red'
+            versionName 'xxxxx'
+            resValue("string","name","red")
+        }
+        blue{
+            applicationId 'jun.zhan.liu.test.blue'
+            versionName 'bbbbb'
+            resValue("string","name","blue")//
+        }
+    }
+
+
+}
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+    compile 'com.android.support:appcompat-v7:24.2.1'
+    testCompile 'junit:junit:4.12'
+//    compile 'org.codehaus.groovy:groovy:2.4.0'
+
+}
+
+android.applicationVariants.all{varis->
+    varis.outputs.each{output->
+        def file=output.outputFile
+        output.outputFile=new File(file.parent,file.name.replace(".apk","-${varis.versionName}.apk"))
+
+    }
+
+}
+
+
+
+
+

@@ -1,0 +1,120 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+//所有模块的配置参数在这个文件内
+buildscript {//构建配置在这个代码块内
+    repositories {
+        //依赖的远程仓库
+        jcenter()
+    }
+    dependencies {
+        //配置构建过程中的依赖包
+        classpath 'com.android.tools.build:gradle:2.3.2'
+
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
+    }
+
+
+
+
+
+}
+
+allprojects {//声明需要被用于所有模块的属性和任务,会被运用到所有模块,相当于全局变量
+
+    repositories {
+        jcenter()
+    }
+
+    //定义全局变量
+    ext{
+        x =24//使用rootProject.ext.x调用
+        y ="20.0.1==================="
+        my_stort_pasword=''
+        password=''
+    }
+    //可以使用命令gradlew coutproperties来执行任务
+    task coutproperties<<{
+        println(welcome)
+    }
+    
+
+
+
+}
+
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}
+
+class MyTaskClass{//groovy类
+    String taskName;//没有访问修饰符
+    String taskaile;//属性如果没有指定Setting,Getting方法,会自动生成这些方法
+    //方法定义一
+    String getTaskName(){
+        return taskName;//groovy的方法最后一行就是返回值,建议加return
+    }
+    def setTaskName(String taskname){
+        taskName=taskname;
+    }
+    //方法定义二
+    def getTaskAile(){
+        return taskName;
+    }
+    def setTaskAile(def aile){
+        taskaile=aile;
+    }
+    //方法定义三
+    def setTAile={aile->
+        taskaile=aile;
+    }
+
+
+    //Closures是匿名代码块,可以接受参数和返回值,它可以视作变量
+    //被当作参数传递给方法
+    //定义Closures 如果没有定义参数name,他有一个默认的参数it
+    Closure myClosure={name->
+        println name;
+    }
+
+    def useClosure(def use,Closure closure){
+
+        closure use
+    }
+
+
+    List list=[1,2,3,4,5];
+    Map map=[name:'小红',pep:'bbss']
+
+
+
+
+}
+task hello<<{
+    println '你好==================='
+}
+
+
+
+//使用命令 gradlew getTaskClassName 调用
+task getTaskClassName<<{
+    //实例化MyTaskClass
+    def instance=new MyTaskClass();
+    instance.setTaskName("我是测试task的名字");
+    println instance.getTaskName();
+    instance.useClosure("哈哈哈哈,交给Closure使用吧",instance.myClosure)
+    instance.list.each {
+        println(it)
+    }
+    println instance.map.get('name');
+    println instance.map['pep'];
+    instance.map.each {
+        println(it);
+    }
+}
+
+
+
+
+
+

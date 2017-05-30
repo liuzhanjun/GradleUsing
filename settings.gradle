@@ -1,0 +1,5 @@
+include ':app'
+//该文件在初始时被执行
+//(在其他两个build.gradle之前,
+//定义哪些模块应该包含在构建内,
+//Gradle会为每个Setting.gradle文件创建一个Setting对象,并调用改对象的相关方法)
